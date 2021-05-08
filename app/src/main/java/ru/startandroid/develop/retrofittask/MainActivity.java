@@ -1,5 +1,5 @@
 package ru.startandroid.develop.retrofittask;
-
+// kotlin
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
