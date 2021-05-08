@@ -11,12 +11,6 @@ public class MessageApiModel {
     @SerializedName("body")
     private String text;
 
-    /*public MessageApiModel(int userId, String title, String text){
-        this.userId = userId;
-        this.title = title;
-        this.text = text;
-    }*/
-
     public int getUserId() {
         return userId;
     }

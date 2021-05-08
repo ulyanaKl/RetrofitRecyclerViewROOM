@@ -27,6 +27,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     public void setItems(List<MessageEntity> messageList){
         this.messageList = messageList;
+        notifyDataSetChanged();
     }
 
     @NonNull

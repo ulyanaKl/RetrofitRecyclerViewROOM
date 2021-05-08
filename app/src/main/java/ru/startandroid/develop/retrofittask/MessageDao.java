@@ -1,5 +1,6 @@
 package ru.startandroid.develop.retrofittask;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -12,8 +13,8 @@ import java.util.List;
 public interface MessageDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void save(List<MessageEntity> messageEntity);
+    void insert(MessageEntity messageEntity);
 
     @Query("SELECT * FROM MessageEntity")
-    List<MessageEntity> getAllMessage();
+    LiveData<List<MessageEntity>> getAllMessage(); //LiveData потрібна коли ми вертаємо дані
 }
