@@ -6,6 +6,9 @@ import androidx.lifecycle.LiveData
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import android.os.AsyncTask
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MessageRepository(
         private val application: Application) {
@@ -13,48 +16,55 @@ class MessageRepository(
     private val messageDao: MessageDao?
     val message: LiveData<List<MessageEntity?>?>?
 
-    val messagesFromServer: Unit
-        get() {
-            val retrofit = Retrofit.Builder()
-                    .baseUrl("https://jsonplaceholder.typicode.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-            jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
-            val call = jsonPlaceHolderApi.messages
+    fun fetchData() {
+        val retrofit = Retrofit.Builder()
+                .baseUrl("http://jsonplaceholder.typicode.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
 
-        }
+        val call = jsonPlaceHolderApi.messages
+        call.enqueue(object : Callback<List<MessageApiModel>> {
+            override fun onResponse(call: Call<List<MessageApiModel>>, response: Response<List<MessageApiModel>>) {
+                val messages = response.body()!!
+                val convertedList = convertToEntity(messages)
+                insertMessage(convertedList)
+            }
 
-    fun convertToEntity(responseFromServer: List<MessageApiModel>) {
+            override fun onFailure(call: Call<List<MessageApiModel>>, t: Throwable) {}
+        })
+    }
+
+    fun convertToEntity(responseFromServer: List<MessageApiModel>) : List<MessageEntity> {
+        val list: MutableList<MessageEntity> = ArrayList()
         for (messageApiModel in responseFromServer) {
             val messageEntity = MessageEntity()
             messageEntity.id = messageApiModel.id
             messageEntity.userId = messageApiModel.userId
             messageEntity.title = messageApiModel.title
             messageEntity.text = messageApiModel.text
-            insertMessage(messageEntity)
+            list.add(messageEntity)
         }
+        return list
     }
 
-    fun insertMessage(messageEntity: MessageEntity?) {
-        InsertMessageAsyncTask(messageDao).execute(messageEntity)
+    fun insertMessage(messageEntities: List<MessageEntity>) {
+        val messageEntityArray = messageEntities.toTypedArray()
+        InsertMessageAsyncTask(messageDao).execute(*messageEntityArray)
     }
 
-    private open class InsertMessageAsyncTask(private val messageDao: MessageDao?) : AsyncTask<MessageEntity?, Void?, Void?>() {
-        @JvmName("doInBackground1")
-        protected fun doInBackground(vararg messageEntities: MessageEntity): Void? {
-            messageDao!!.insert(messageEntities[0])
+    private open class InsertMessageAsyncTask(private val messageDao: MessageDao?) : AsyncTask<MessageEntity, Void?, Void?>() {
+
+        override fun doInBackground(vararg messageEntities: MessageEntity): Void? {
+            messageDao!!.insert(listOf(*messageEntities))
             return null
-        }
-
-        override fun doInBackground(vararg params: MessageEntity?): Void? {
-            TODO("Not yet implemented")
         }
     }
 
     init {
         val messageDatabase = getMessageDatabase(application)
-        messageDao = messageDatabase!!.messageDao
-        messagesFromServer
-        message = messageDao!!.allMessage
+        messageDao = messageDatabase.messageDao
+        fetchData()
+        message = messageDao!!.allMessage()
     }
 }

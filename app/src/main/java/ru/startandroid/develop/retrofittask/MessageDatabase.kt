@@ -11,8 +11,7 @@ abstract class MessageDatabase : RoomDatabase() {
 
     companion object {
         private var messageDatabase: MessageDatabase? = null
-        @JvmStatic
-        fun getMessageDatabase(context: Context): MessageDatabase? {
+        fun getMessageDatabase(context: Context): MessageDatabase {
             if (messageDatabase == null) {
                 messageDatabase = Room.databaseBuilder(context.applicationContext,
                         MessageDatabase::class.java, "database-name")
@@ -20,7 +19,7 @@ abstract class MessageDatabase : RoomDatabase() {
                         .allowMainThreadQueries()
                         .build()
             }
-            return messageDatabase
+            return messageDatabase!!
         }
     }
 }

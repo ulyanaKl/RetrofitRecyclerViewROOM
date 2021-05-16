@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var myRecyclerView: RecyclerView
     private var adapter: MyRecyclerViewAdapter? = null
-    var model: MessageViewModel? = null
+    private lateinit var model: MessageViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -23,9 +23,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         adapter = MyRecyclerViewAdapter(this)
         myRecyclerView.setAdapter(adapter)
         model = AndroidViewModelFactory(this.application).create(MessageViewModel::class.java)
+
     }
 
     override fun onClick(v: View) {
+        model.insertMessage()
         messageLiveData
     }
 
