@@ -13,5 +13,5 @@ interface MessageDao {
 
     //LiveData потрібна коли ми вертаємо дані
     @Query("SELECT * FROM MessageEntity")
-    fun allMessage(): LiveData<List<MessageEntity?>?>?
+    fun allMessage(): LiveData<List<MessageEntity>>
 }

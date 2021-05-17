@@ -13,7 +13,7 @@ class MyRecyclerViewAdapter(private val context: Context) : RecyclerView.Adapter
     private var messageList: List<MessageEntity>? = null
     private val callback: Callback? = null
 
-    internal interface Callback {
+    interface Callback {
         fun onItemLongClicked(message: MessageEntity?)
     }
 
@@ -39,11 +39,11 @@ class MyRecyclerViewAdapter(private val context: Context) : RecyclerView.Adapter
     }
 
     class MyViewHolder internal constructor(itemView: View, callback: Callback?) : ViewHolder(itemView) {
-        private val id: TextView
-        private val userId: TextView
-        private val titleTextView: TextView
-        private val messageTextView: TextView
-        private val callback: Callback?
+        val id: TextView = itemView.findViewById(R.id.id)
+        val userId: TextView = itemView.findViewById(R.id.user_Id)
+        val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
+        val messageTextView: TextView = itemView.findViewById(R.id.titleTextView)
+        val callback: Callback? = callback
         fun bind(message: MessageEntity) {
             id.text = "Id: " + Integer.toString(message.id)
             userId.text = "UserId: " + Integer.toString(message.userId)
@@ -55,12 +55,5 @@ class MyRecyclerViewAdapter(private val context: Context) : RecyclerView.Adapter
             }
         }
 
-        init {
-            id = itemView.findViewById(R.id.id)
-            userId = itemView.findViewById(R.id.user_Id)
-            titleTextView = itemView.findViewById(R.id.titleTextView)
-            messageTextView = itemView.findViewById(R.id.messageTextView)
-            this.callback = callback
-        }
     }
 }

@@ -14,7 +14,7 @@ class MessageRepository(
         private val application: Application) {
     private lateinit var jsonPlaceHolderApi: JsonPlaceHolderApi
     private val messageDao: MessageDao?
-    val message: LiveData<List<MessageEntity?>?>?
+    val message: LiveData<List<MessageEntity>>
 
     fun fetchData() {
         val retrofit = Retrofit.Builder()
@@ -38,11 +38,11 @@ class MessageRepository(
     fun convertToEntity(responseFromServer: List<MessageApiModel>) : List<MessageEntity> {
         val list: MutableList<MessageEntity> = ArrayList()
         for (messageApiModel in responseFromServer) {
-            val messageEntity = MessageEntity()
-            messageEntity.id = messageApiModel.id
-            messageEntity.userId = messageApiModel.userId
-            messageEntity.title = messageApiModel.title
-            messageEntity.text = messageApiModel.text
+            val messageEntity = MessageEntity(
+            id = messageApiModel.id,
+            userId = messageApiModel.userId,
+            title = messageApiModel.title,
+            text = messageApiModel.text)
             list.add(messageEntity)
         }
         return list
