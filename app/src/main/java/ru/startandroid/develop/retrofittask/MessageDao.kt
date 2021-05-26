@@ -9,7 +9,7 @@ import androidx.room.Query
 @Dao
 interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(messageEntity: List<MessageEntity>)
+    suspend fun insert(messageEntity: List<MessageEntity>)
 
     //LiveData потрібна коли ми вертаємо дані
     @Query("SELECT * FROM MessageEntity")

@@ -5,18 +5,19 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import android.os.AsyncTask
+
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MessageRepository(
+class MessageRepository (
         private val application: Application) {
     private lateinit var jsonPlaceHolderApi: JsonPlaceHolderApi
     private val messageDao: MessageDao?
     val message: LiveData<List<MessageEntity>>
 
-    fun fetchData() {
+    suspend fun fetchData(): List<MessageApiModel>{
+        var messageApiModelList: List<MessageApiModel> = emptyList<MessageApiModel>()
         val retrofit = Retrofit.Builder()
                 .baseUrl("http://jsonplaceholder.typicode.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -26,13 +27,19 @@ class MessageRepository(
         val call = jsonPlaceHolderApi.messages
         call.enqueue(object : Callback<List<MessageApiModel>> {
             override fun onResponse(call: Call<List<MessageApiModel>>, response: Response<List<MessageApiModel>>) {
-                val messages = response.body()!!
-                val convertedList = convertToEntity(messages)
-                insertMessage(convertedList)
+                val messages: List<MessageApiModel> = response.body()!!
+                messageApiModelList = messages
             }
 
             override fun onFailure(call: Call<List<MessageApiModel>>, t: Throwable) {}
         })
+        return messageApiModelList
+    }
+
+    suspend fun fetchAndInsertData(){
+        val fetchApiModels = fetchData()
+        val convertedList:List<MessageEntity> = convertToEntity(fetchApiModels)
+        messageDao!!.insert(convertedList)
     }
 
     fun convertToEntity(responseFromServer: List<MessageApiModel>) : List<MessageEntity> {
@@ -48,7 +55,7 @@ class MessageRepository(
         return list
     }
 
-    fun insertMessage(messageEntities: List<MessageEntity>) {
+    /*fun insertMessage(messageEntities: List<MessageEntity>) {
         val messageEntityArray = messageEntities.toTypedArray()
         InsertMessageAsyncTask(messageDao).execute(*messageEntityArray)
     }
@@ -59,12 +66,13 @@ class MessageRepository(
             messageDao!!.insert(listOf(*messageEntities))
             return null
         }
-    }
+    }*/
+
+
 
     init {
         val messageDatabase = getMessageDatabase(application)
         messageDao = messageDatabase.messageDao
-        fetchData()
         message = messageDao!!.allMessage()
     }
 }
